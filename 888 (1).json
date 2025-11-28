@@ -1,0 +1,1038 @@
+{
+  "name": "888",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": false
+        }
+      },
+      "id": "749febe4-dbb6-4d5c-bcf8-c1adcfd6e9f6",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        768,
+        0
+      ],
+      "webhookId": "51942fbb-ca0e-4ec4-9423-5fcc7d3c4281",
+      "typeVersion": 1,
+      "retryOnFail": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "RDMc7oRnZ5ZqUEHu",
+          "name": "Telegram account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Error fallback for unsupported commands",
+        "height": 231.22373949579838,
+        "width": 316.1071428571428
+      },
+      "id": "6a0cd108-fdb6-4fd7-b4fc-e249c8defe01",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2128,
+        896
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "values": {
+          "number": [
+            {
+              "name": "model_temperature",
+              "value": 0.8
+            },
+            {
+              "name": "token_length",
+              "value": 500
+            }
+          ],
+          "string": [
+            {
+              "name": "system_command",
+              "value": "=You are a friendly chatbot. User name is {{ $json?.message?.from?.first_name }}. User system language is {{ $json?.message?.from?.language_code }}. First, detect user text language. Next, provide your reply in the same language. Include several suitable emojis in your answer."
+            },
+            {
+              "name": "bot_typing",
+              "value": "={{ $json?.message?.text.startsWith('/image') ? \"upload_photo\" : \"typing\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "82f920c1-730b-4e6e-8a00-3998ef3164e3",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2432,
+        656
+      ],
+      "typeVersion": 2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "ปัญหาด้านการเรียน/เกรด/การพ้นสภาพ\n",
+        "height": 233,
+        "width": 330.5019024637719
+      },
+      "id": "eac8a0af-6fbb-469e-9362-37a38ce4807b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2128,
+        64
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Welcome message\n### /start",
+        "height": 219.892857142857,
+        "width": 330.7863484403046
+      },
+      "id": "a2cb7d06-56bc-4f28-8fdc-7257d4f0679c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2128,
+        336
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4.1-mini",
+        "prompt": {
+          "messages": [
+            {
+              "role": "assistant",
+              "content": "={{ $json.system_command }}"
+            },
+            {
+              "content": "={{ $json.message.text }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": "={{ $json.token_length }}",
+          "temperature": "={{ $json.model_temperature }}"
+        },
+        "requestOptions": {}
+      },
+      "id": "08899ac3-c484-4f74-85de-c3d66154ebf8",
+      "name": "Chat_mode",
+      "type": "n8n-nodes-base.openAi",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "={{ $json.system_command }}"
+            },
+            {
+              "content": "=This is the first message from a user. Please welcome a new user in `{{ $json.message.from.language_code }}` language"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": "={{ $json.token_length }}",
+          "temperature": "={{ $json.model_temperature }}"
+        },
+        "requestOptions": {}
+      },
+      "id": "2aa6a3f6-bb37-4ee6-b373-6f5de475b71a",
+      "name": "Greeting",
+      "type": "n8n-nodes-base.openAi",
+      "position": [
+        2256,
+        368
+      ],
+      "typeVersion": 1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Settings').first().json.message.from.id }}",
+        "text": "={{ $json.message.content }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "e341bb47-51de-4a8b-abe0-77c0747b4d4a",
+      "name": "Text reply",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2608,
+        256
+      ],
+      "typeVersion": 1,
+      "webhookId": "0f58012c-4e30-4c45-8e5d-9807561e9ce0",
+      "credentials": {
+        "telegramApi": {
+          "id": "RDMc7oRnZ5ZqUEHu",
+          "name": "Telegram account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Create an image\n### /image + request",
+        "height": 233.8785714285713,
+        "width": 329.7428571428562
+      },
+      "id": "eb3b6db3-e658-4a9f-b47f-f2112f8a09e1",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2128,
+        592
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "={{ $json.message.text.split(' ').slice(1).join(' ') }}",
+        "responseFormat": "imageUrl",
+        "options": {
+          "n": 1,
+          "size": "512x512"
+        },
+        "requestOptions": {}
+      },
+      "id": "bd203506-fb7f-4004-a045-973e3fad2fe6",
+      "name": "Create an image",
+      "type": "n8n-nodes-base.openAi",
+      "position": [
+        2256,
+        656
+      ],
+      "typeVersion": 1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.from.id }}",
+        "text": "=Sorry, {{ $json.message.from.first_name }}! This command is not supported yet. Please type some text to a chat bot or try this command:\n/image \\[your prompt]\n\nEnter the command, then space and provide your request. Example:\n\n`/image a picture or a cute little kitten with big eyes. Miyazaki studio ghibli style`",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "1e3c6ad1-1486-4910-8726-e4725bd78124",
+      "name": "Send error message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2608,
+        960
+      ],
+      "typeVersion": 1,
+      "webhookId": "b9d587c0-ec7c-49d4-8b42-8d6b60b51e5e",
+      "credentials": {
+        "telegramApi": {
+          "id": "RDMc7oRnZ5ZqUEHu",
+          "name": "Telegram account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Settings').first().json.message.from.id }}",
+        "file": "={{ $json.url }}",
+        "additionalFields": {}
+      },
+      "id": "20154e0f-5d88-4a02-afd6-7138d48380fe",
+      "name": "Send image",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2608,
+        656
+      ],
+      "typeVersion": 1,
+      "webhookId": "ec2d5ad0-0cc7-42f9-a144-673f0bec4232",
+      "credentials": {
+        "telegramApi": {
+          "id": "RDMc7oRnZ5ZqUEHu",
+          "name": "Telegram account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "สู้สุดใจนะจ้ะ",
+              "value": "={{ $json?.message?.text || \"\" }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": true
+        }
+      },
+      "id": "3c13c578-ba25-4dfc-9c72-10b26afeb817",
+      "name": "PreProcessing",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2256,
+        656
+      ],
+      "typeVersion": 2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        2032,
+        656
+      ],
+      "id": "49c8f69d-d4a7-4a6f-bdac-02a7f7414da3",
+      "name": "When chat message received",
+      "webhookId": "9d7881d2-f3df-4365-98ce-4f3903955918",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $json.message.from.id }}",
+        "options": {}
+      },
+      "id": "b090eb7c-b21f-4257-8810-8ceee96f8201",
+      "name": "Send Typing action",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        288,
+        0
+      ],
+      "typeVersion": 1,
+      "webhookId": "1fb30682-b620-4b1c-a13d-bafe074a9249",
+      "credentials": {
+        "telegramApi": {
+          "id": "RDMc7oRnZ5ZqUEHu",
+          "name": "Telegram account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "การพิจารณาเกณฑ์พ้นสภาพ ต้องยึดตามปีการศึกษาที่นิสิตเข้าศึกษา เป็นหลัก\n\nสำหรับนิสิตที่เข้าตั้งแต่ปี 2557 (ข้อบังคับฯ พ.ศ. 2557) การพ้นสภาพจะเกิดขึ้นทันทีที่เกรดเฉลี่ยสะสมและหน่วยกิตถึงเกณฑ์ที่กำหนด (มาตรา 19.8 และ 19.9) โดยไม่ต้องมีสภาพรอพินิจล่วงหน้า",
+        "documentUrls": "https://gemini.google.com/app/7d0ef1b5913dc641?hl=th",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        2736,
+        656
+      ],
+      "id": "e999c439-9de5-463b-ad8a-ee9d0f88b11a",
+      "name": "Analyze document",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "634ZSh7HnRhRaBGo",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f4966afa-2116-4ac2-b2f6-02a8251b4d2c",
+              "name": "",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "2c85b783-c815-42e2-a036-d194ab08e86b",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        528,
+        0
+      ],
+      "id": "8a054cbc-b128-4bfd-a4dc-1a717a1fa860",
+      "name": "Edit Fields",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -432,
+        864
+      ],
+      "id": "e42c7e68-f32d-4cd9-a902-f211518ae133",
+      "name": "Telegram Trigger1",
+      "webhookId": "8a296ca5-86dd-46ea-9585-b8c5c9ceb7b7",
+      "credentials": {
+        "telegramApi": {
+          "id": "RDMc7oRnZ5ZqUEHu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6729d7e7-19f1-4c06-a942-957ca111e3ce",
+              "name": "Chat ID",
+              "value": "={{ $json.message.chat }}",
+              "type": "string"
+            },
+            {
+              "id": "27570bdf-dffa-42ac-8fe5-d3ba06a942a0",
+              "name": "Message",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -144,
+        832
+      ],
+      "id": "2ae9207e-149b-4945-b1f7-45833bfe044d",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Message }}",
+        "options": {
+          "systemMessage": "ที่ปรึกษาการพ้นสภาพนิสิต”\nหรือ “ระบบช่วยตอบคำถามงานทะเบียนนิสิต"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        32,
+        864
+      ],
+      "id": "f8d4a147-7919-4ea0-b943-c4dc575daa06",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        1040
+      ],
+      "id": "ee2aceaa-228f-4fb1-ab61-1b3468dd0020",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "634ZSh7HnRhRaBGo",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "=",
+        "subject": "=Hello",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        400,
+        832
+      ],
+      "id": "6682b638-2a1e-4e61-bd7d-a34d315aa08c",
+      "name": "Send a message",
+      "webhookId": "ebc785da-270c-4899-8eae-63657be3f05e",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json['Chat ID'] }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        1040
+      ],
+      "id": "c10c2a1d-a83f-4abc-b92a-1416e24795b3",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.from.id }}",
+        "text": "={{ $('Edit Fields1').item.json.Message }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        992
+      ],
+      "id": "59ef783c-684c-40f2-8675-7bb591de1e83",
+      "name": "Send a text message",
+      "webhookId": "f8b25b49-b064-414c-8a2e-322f05fd8eb7",
+      "credentials": {
+        "telegramApi": {
+          "id": "RDMc7oRnZ5ZqUEHu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Text/Part/1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        192
+      ],
+      "id": "94a6396f-f900-4745-a2c4-debb37fa6b27",
+      "name": "Webhook",
+      "webhookId": "e60346ca-3f52-46b8-ab72-cf472736af33",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "11402945-2290-4d50-80ee-c21f6d77b45d",
+              "name": "Message",
+              "value": "={{ $json.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1968,
+        192
+      ],
+      "id": "d4253f4b-d1f9-4a51-a953-1fdbe3e862ab",
+      "name": "Edit Fields2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a7de60ef-e411-4b59-ba1e-3337d0f30a0a",
+              "name": "ChatID",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "string"
+            },
+            {
+              "id": "6f31a089-0630-4fe9-b158-22fa7203b865",
+              "name": "message",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -144,
+        1200
+      ],
+      "id": "9f909e3f-c5d2-4e31-84a5-3161c07f874e",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "คุณคือผู้เชี่ยวชาญ n8n ที่ปรึกษาที่สามารถวิเคราะห์และออกแบบ Work Flow Automation สำหรับนิสิตที่ต้องการยื่นเรื่องย้ายคณะ/สาขาวิชา"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        64,
+        1200
+      ],
+      "id": "90722d93-254b-4bbd-a7ea-c1461c6ecbb4",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        1408
+      ],
+      "id": "a0733040-ceb4-467f-82b3-bdd34fa8444e",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "634ZSh7HnRhRaBGo",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        1408
+      ],
+      "id": "4919157b-269e-4da8-a66d-df856f561bd6",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1239a07-56c3-43d1-ac31-d05cc0c4da2a",
+              "name": "Chat ID",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "string"
+            },
+            {
+              "id": "308a8f53-4a46-4b1c-9bc0-3593980cb432",
+              "name": "Mesage",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -144,
+        576
+      ],
+      "id": "7d857b42-db44-4ead-bcc4-0d4451e3f96c",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Mesage }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        64,
+        576
+      ],
+      "id": "c8414adf-4ee1-45b3-88ae-ad5304128b63",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "https://gemini.google.com/app/6c8a821ad731b783?is_sa=1&is_sa=1&android-min-version=301356232&ios-min-version=322.0&campaign_id=bkws&utm_source=sem&utm_source=google&utm_medium=paid-media&utm_medium=cpc&utm_campaign=bkws&utm_campaign=2024thTH_gemfeb&pt=9008&mt=8&ct=p-growth-sem-bkws&gclsrc=aw.ds&gad_source=1&gad_campaignid=22446690916&gbraid=0AAAAApk5Bhkb3OlKsUEPIUBkdCBr4X5fZ&gclid=CjwKCAiAraXJBhBJEiwAjz7MZYfQHHgWch95DBJI-62A9tiDDl12UGzOWh4nLxXrkKoaGxQNMgMgxBoCmN0QAvD_BwE"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        720
+      ],
+      "id": "14a0b789-bd39-438f-9286-22181f1b4a00",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        48,
+        720
+      ],
+      "id": "37a331f1-c1c6-4b10-a060-11d0f6f9ce5c",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "1vpLJZJZYl9JqhDT",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.from.id }}",
+        "text": "={{ $('Edit Fields3').item.json.message }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        1200
+      ],
+      "id": "c3233623-6e91-4d83-842a-c92ee1388739",
+      "name": "Send a text message2",
+      "webhookId": "29de40cd-defe-4464-a300-eab55975f222",
+      "credentials": {
+        "telegramApi": {
+          "id": "RDMc7oRnZ5ZqUEHu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields4').item.json['Chat ID'] }}",
+        "text": "={{ $('Edit Fields4').item.json.Mesage }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        576
+      ],
+      "id": "75ee4c6c-f5c4-4056-933e-5eb126ed5f98",
+      "name": "Send a text message1",
+      "webhookId": "d49ee3a2-686f-4369-8470-6f6fa265dd07",
+      "credentials": {
+        "telegramApi": {
+          "id": "RDMc7oRnZ5ZqUEHu",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Greeting": {
+      "main": [
+        [
+          {
+            "node": "Text reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Analyze document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PreProcessing": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an image": {
+      "main": [
+        [
+          {
+            "node": "Send image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "PreProcessing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0e5e8077-5b9e-4c67-a295-9cb5d2984273",
+  "meta": {
+    "instanceId": "585b97a7ee8464bf6e39430190a02b731fe5e30f40eea9655e0f2b77bcc8b101"
+  },
+  "id": "EYqFKWApuJEM0epL",
+  "tags": [
+    {
+      "updatedAt": "2025-11-27T09:56:59.688Z",
+      "createdAt": "2025-11-27T09:56:59.688Z",
+      "id": "qgc1otOWdsllwGzY",
+      "name": "tutorial"
+    }
+  ]
+}
